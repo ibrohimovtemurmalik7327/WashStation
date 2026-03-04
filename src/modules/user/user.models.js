@@ -20,6 +20,13 @@ class UserModels {
         return result;
     };
 
+    getUsers = async () => {
+        const users = await db_laundry(TB)
+        .select('id', 'phone', 'role', 'created_at', 'updated_at');
+
+        return users;
+    }
+
     getByPhone = async (phone) => {
         const result = await db_laundry(TB)
         .select('id', 'phone', 'role', 'created_at', 'updated_at')
@@ -37,7 +44,7 @@ class UserModels {
             updated_at: db_laundry.fn.now()
         });
 
-        return result;
+        return this.getUserById(id);
     };
 
     deleteById = async (id) => {
