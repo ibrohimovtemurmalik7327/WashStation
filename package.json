@@ -1,0 +1,26 @@
+{
+  "name": "washstation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "migration:make": "knex migrate:make --knexfile src/db/knexfile.js",
+    "migrate": "knex migrate:latest --knexfile src/db/knexfile.js",
+    "rollback": "knex migrate:rollback --knexfile src/db/knexfile.js",
+    "rollback:all": "knex migrate:rollback --all --knexfile src/db/knexfile.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "joi": "^18.0.2",
+    "knex": "^3.1.0",
+    "mysql2": "^3.18.2",
+    "nodemon": "^3.1.14"
+  }
+}
