@@ -53,8 +53,11 @@ const config = {
   booking: {
     maxBookingHours: Number(process.env.MAX_BOOKING_HOURS || 4),
     intervalMinutes: Number(process.env.BOOKING_INTERVAL_MINUTES || 10)
-  }
+  },
 
+  tables: {
+    TB_USERS: 'tb_users'
+  }
 };
 
 module.exports = config;
