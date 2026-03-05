@@ -21,11 +21,11 @@ class UserService {
 
             user.password_hash = await bcrypt.hash(data.password, BCRYPT_COST);
 
-            await UserModels.createUser(user);
+            const result = await UserModels.createUser(user);
 
             return {
                 success: true,
-                data: user
+                data: result
             };
         } catch (error) {
             console.error(error);
