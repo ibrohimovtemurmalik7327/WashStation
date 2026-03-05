@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
-const BCRYPT_COST = Number(process.env.BCRYPT_COST || 10);
+const config = require('../../config/config');
+const BCRYPT_COST = Number(config.bcrypt.cost || 10);
 const UserModels = require('./user.models');
 
 class UserService {
@@ -9,8 +10,8 @@ class UserService {
             if(doesExist) {
                 return {
                     success: false,
-                    error: 'This phone number already used',
-                    data: {}
+                    code: 'CONFLICT',
+                    message: 'This phone number already used',
                 };
             };
 
@@ -26,23 +27,25 @@ class UserService {
                 success: true,
                 data: user
             };
-        } catch(error) {
+        } catch (error) {
+            console.error(error);
+
             return {
                 success: false,
-                error: error,
-                data: {}
-            }
+                code: 'INTERNAL_ERROR',
+                message: 'Internal server error'
+            };
         }
     };
 
-    getUserById = async (id) => {
+    getUser = async (id) => {
         try {
             const user = await UserModels.getUserById(id);
             if(!user) {
                 return {
                     success: false,
-                    error: 'User not found',
-                    data: {}
+                    code: 'NOT_FOUND',
+                    message: 'User not found',
                 };
             };
 
@@ -51,10 +54,12 @@ class UserService {
                 data: user
             };
         } catch (error) {
+            console.error(error);
+
             return {
                 success: false,
-                error: error,
-                data: {}
+                code: 'INTERNAL_ERROR',
+                message: 'Internal server error'
             };
         }
     };
@@ -68,10 +73,12 @@ class UserService {
                 data: users
             };
         } catch (error) {
+            console.error(error);
+
             return {
                 success: false,
-                error: error,
-                data: {}
+                code: 'INTERNAL_ERROR',
+                message: 'Internal server error'
             };
         }
     };
@@ -82,8 +89,8 @@ class UserService {
             if(!doesExist) {
                 return {
                     success: false,
-                    error: 'User not found',
-                    data: {}
+                    code: 'NOT_FOUND',
+                    message: 'User not found',
                 };
             };
 
@@ -93,10 +100,12 @@ class UserService {
                 data: updatedUser
             };
         } catch (error) {
+            console.error(error);
+
             return {
                 success: false,
-                error: error,
-                data: {}
+                code: 'INTERNAL_ERROR',
+                message: 'Internal server error'
             };
         }
     };
@@ -107,21 +116,24 @@ class UserService {
             if(!user) {
                 return {
                     success: false,
-                    error: 'User not found',
-                    data: {}
+                    code: 'NOT_FOUND',
+                    message: 'User not found',
                 };
             };
 
-            const result = await UserModels.deleteById(id);
+            await UserModels.deleteById(id);
+
             return {
                 success: true,
-                data: result
+                data: {}
             };
         } catch (error) {
+            console.error(error);
+
             return {
-                success: false, 
-                error: error,
-                data: {}
+                success: false,
+                code: 'INTERNAL_ERROR',
+                message: 'Internal server error'
             };
         }
     };
@@ -134,8 +146,8 @@ class UserService {
             if(!old_password_hash) {
                 return {
                     success: false,
-                    error: 'User not found',
-                    data: {}
+                    code: 'NOT_FOUND',
+                    message: 'User not found',
                 };
             };
 
@@ -144,8 +156,8 @@ class UserService {
             if(!isMatch) {
                 return {
                     success: false,
-                    error: 'Old password incorrect',
-                    data: {}
+                    code: 'INCORRECT_OLD_PASSWORD',
+                    message: 'Old password incorrect',
                 };
             };
 
@@ -158,10 +170,12 @@ class UserService {
                 data: result
             };
         } catch (error) {
+            console.error(error);
+
             return {
                 success: false,
-                error: error,
-                data: {}
+                code: 'INTERNAL_ERROR',
+                message: 'Internal server error'
             };
         }
     };

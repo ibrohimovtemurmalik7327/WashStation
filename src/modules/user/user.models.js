@@ -72,7 +72,7 @@ class UserModels {
             updated_at: db_laundry.fn.now()
         });
 
-        return result;
+        return this.getUserById(id);
     };
 }
 
