@@ -37,7 +37,7 @@ class UserModels {
     };
 
     updateById = async (id, data) => {
-        const result = await db_laundry(TB)
+        await db_laundry(TB)
         .where({id})
         .update({
             ...data,
@@ -65,7 +65,7 @@ class UserModels {
     };
 
     changePassword = async (id, hashedNewPassword) => {
-        const result = await db_laundry(TB)
+        await db_laundry(TB)
         .where({id})
         .update({
             password_hash: hashedNewPassword,

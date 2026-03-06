@@ -11,7 +11,7 @@ class UserService {
                 return {
                     success: false,
                     code: 'CONFLICT',
-                    message: 'This phone number already used',
+                    message: 'This phone number already used'
                 };
             };
 
@@ -45,7 +45,7 @@ class UserService {
                 return {
                     success: false,
                     code: 'NOT_FOUND',
-                    message: 'User not found',
+                    message: 'User not found'
                 };
             };
 
@@ -90,7 +90,16 @@ class UserService {
                 return {
                     success: false,
                     code: 'NOT_FOUND',
-                    message: 'User not found',
+                    message: 'User not found'
+                };
+            };
+
+            const phone = await UserModels.getByPhone(data.phone);
+            if(phone && phone?.id !== id) {
+                return {
+                    success: false,
+                    code: 'CONFLICT',
+                    message: 'This phone number already used'
                 };
             };
 
@@ -117,7 +126,7 @@ class UserService {
                 return {
                     success: false,
                     code: 'NOT_FOUND',
-                    message: 'User not found',
+                    message: 'User not found'
                 };
             };
 
@@ -147,7 +156,7 @@ class UserService {
                 return {
                     success: false,
                     code: 'NOT_FOUND',
-                    message: 'User not found',
+                    message: 'User not found'
                 };
             };
 
@@ -157,7 +166,7 @@ class UserService {
                 return {
                     success: false,
                     code: 'INCORRECT_OLD_PASSWORD',
-                    message: 'Old password incorrect',
+                    message: 'Old password incorrect'
                 };
             };
 
