@@ -40,12 +40,6 @@ const config = {
     cost: Number(process.env.BCRYPT_COST || 10)
   },
 
-  otp: {
-    length: Number(process.env.AUTH_OTP_LENGTH || 6),
-    ttlMs: Number(process.env.AUTH_OTP_TTL_MS || 300000),
-    maxAttempts: Number(process.env.AUTH_OTP_MAX_ATTEMPTS || 5)
-  },
-
   billing: {
     pricePerKg: Number(process.env.PRICE_PER_KG || 5000)
   },
@@ -56,8 +50,15 @@ const config = {
   },
 
   tables: {
-    TB_USERS: 'tb_users'
-  }
+    TB_USERS: 'tb_users',
+    TB_TICKETS: 'tb_tickets'
+  },
+
+  auth: {
+        otp_length: Number(process.env.AUTH_OTP_LENGTH) || 6,
+        otp_ttl_ms: Number(process.env.AUTH_OTP_TTL_MS) || 5 * 60 * 1000,
+        otp_max_attempts: Number(process.env.AUTH_OTP_MAX_ATTEMPTS) || 5,
+  },
 };
 
 module.exports = config;
