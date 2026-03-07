@@ -20,13 +20,7 @@ exports.up = async function (knex) {
             .integer('attempts')
             .unsigned()
             .notNullable()
-            .defaultTo(0);
-
-        table
-            .integer('max_attempts')
-            .unsigned()
-            .notNullable()
-            .defaultTo(5);    
+            .defaultTo(0);   
 
         table
             .dateTime('expires_at')
