@@ -1,5 +1,6 @@
 const UserService = require('./user.service');
 const { sendResponse } = require('../../helpers/response.helper');
+const UserModels = require('./user.models');
 
 class UserController {
     createUser = async (req, res) => {
@@ -35,6 +36,13 @@ class UserController {
         const result = await UserService.changePassword(id, req.body);
         return sendResponse(res, result, 200);
     };
+
+    getMe = async (req, res) => {
+        const id = Number(req.user?.sub);
+        const result = await UserService.getUser(id);
+        return sendResponse(res, result);
+    }
+
 }
 
 module.exports = new UserController();

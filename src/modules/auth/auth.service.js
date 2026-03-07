@@ -13,7 +13,7 @@ class AuthService {
     registerStart = async (data) => {
         try {
             const phone = String(data.phone || '').trim();
-            const password = String(data.password || '').trim();
+            const password = String(data.password || '');
 
             const existingUser = await UserModels.getByPhone(phone);
             if (existingUser) {
@@ -66,6 +66,8 @@ class AuthService {
                 }
             };
         } catch (error) {
+            console.error('registerStart error:', error);
+
             return {
                 success: false,
                 code: 'INTERNAL',
@@ -158,7 +160,16 @@ class AuthService {
 
             const existingUser = await UserModels.getByPhone(ticket.phone);
             if (existingUser) {
-                await AuthModels.consumeTicket(ticket_id);
+                const consumed = await AuthModels.consumeTicket(ticket_id);
+
+                if (!consumed) {
+                    return {
+                        success: false,
+                        code: 'TICKET_NOT_PENDING',
+                        message: 'Ticket is not pending',
+                        data: {}
+                    };
+                }
 
                 return {
                     success: false,
@@ -168,15 +179,12 @@ class AuthService {
                 };
             }
 
-            const createdUser = await UserModels.createUser({
+            const user = await UserModels.createUser({
                 phone: ticket.phone,
                 password_hash: ticket.password_hash
             });
 
-            const user = createdUser?.data ?? createdUser;
-            const user_id = user?.id;
-
-            if (!user_id) {
+            if (!user?.id) {
                 return {
                     success: false,
                     code: 'INTERNAL',
@@ -185,10 +193,22 @@ class AuthService {
                 };
             }
 
-            await AuthModels.consumeTicket(ticket_id);
+            const consumed = await AuthModels.consumeTicket(ticket_id);
+            if (!consumed) {
+                return {
+                    success: false,
+                    code: 'TICKET_NOT_PENDING',
+                    message: 'Ticket is not pending',
+                    data: {}
+                };
+            }
 
             const access_token = jwt.sign(
-                { sub: user_id, phone: user.phone },
+                {
+                    sub: user.id,
+                    phone: user.phone,
+                    role: user.role
+                },
                 config.jwt.secret,
                 { expiresIn: config.jwt.expiresIn }
             );
@@ -201,6 +221,8 @@ class AuthService {
                 }
             };
         } catch (error) {
+            console.error('registerVerify error:', error);
+
             if (error && (error.code === 'ER_DUP_ENTRY' || error.errno === 1062)) {
                 const msg = String(error.sqlMessage || error.message || '').toLowerCase();
 
@@ -273,6 +295,8 @@ class AuthService {
                 }
             };
         } catch (error) {
+            console.error('loginStart error:', error);
+
             return {
                 success: false,
                 code: 'INTERNAL',
@@ -365,7 +389,16 @@ class AuthService {
 
             const user = await UserModels.getByPhone(ticket.phone);
             if (!user) {
-                await AuthModels.consumeTicket(ticket_id);
+                const consumed = await AuthModels.consumeTicket(ticket_id);
+
+                if (!consumed) {
+                    return {
+                        success: false,
+                        code: 'TICKET_NOT_PENDING',
+                        message: 'Ticket is not pending',
+                        data: {}
+                    };
+                }
 
                 return {
                     success: false,
@@ -375,10 +408,22 @@ class AuthService {
                 };
             }
 
-            await AuthModels.consumeTicket(ticket_id);
+            const consumed = await AuthModels.consumeTicket(ticket_id);
+            if (!consumed) {
+                return {
+                    success: false,
+                    code: 'TICKET_NOT_PENDING',
+                    message: 'Ticket is not pending',
+                    data: {}
+                };
+            }
 
             const access_token = jwt.sign(
-                { sub: user.id, phone: user.phone },
+                {
+                    sub: user.id,
+                    phone: user.phone,
+                    role: user.role
+                },
                 config.jwt.secret,
                 { expiresIn: config.jwt.expiresIn }
             );
@@ -391,6 +436,8 @@ class AuthService {
                 }
             };
         } catch (error) {
+            console.error('loginVerify error:', error);
+
             return {
                 success: false,
                 code: 'INTERNAL',
@@ -403,7 +450,7 @@ class AuthService {
     resetPasswordStart = async (data) => {
         try {
             const phone = String(data.phone || '').trim();
-            const new_password = String(data.new_password || '').trim();
+            const new_password = String(data.new_password || '');
 
             const user = await UserModels.getByPhone(phone);
             if (!user) {
@@ -456,6 +503,8 @@ class AuthService {
                 }
             };
         } catch (error) {
+            console.error('resetPasswordStart error:', error);
+
             return {
                 success: false,
                 code: 'INTERNAL',
@@ -548,7 +597,16 @@ class AuthService {
 
             const user = await UserModels.getByPhone(ticket.phone);
             if (!user) {
-                await AuthModels.consumeTicket(ticket_id);
+                const consumed = await AuthModels.consumeTicket(ticket_id);
+
+                if (!consumed) {
+                    return {
+                        success: false,
+                        code: 'TICKET_NOT_PENDING',
+                        message: 'Ticket is not pending',
+                        data: {}
+                    };
+                }
 
                 return {
                     success: false,
@@ -568,7 +626,15 @@ class AuthService {
                 };
             }
 
-            await AuthModels.consumeTicket(ticket_id);
+            const consumed = await AuthModels.consumeTicket(ticket_id);
+            if (!consumed) {
+                return {
+                    success: false,
+                    code: 'TICKET_NOT_PENDING',
+                    message: 'Ticket is not pending',
+                    data: {}
+                };
+            }
 
             return {
                 success: true,
@@ -577,6 +643,8 @@ class AuthService {
                 }
             };
         } catch (error) {
+            console.error('resetPasswordVerify error:', error);
+
             return {
                 success: false,
                 code: 'INTERNAL',
@@ -642,6 +710,8 @@ class AuthService {
                 }
             };
         } catch (error) {
+            console.error('resendOtp error:', error);
+
             return {
                 success: false,
                 code: 'INTERNAL',

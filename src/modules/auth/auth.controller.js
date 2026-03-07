@@ -37,7 +37,6 @@ class AuthController {
         const result = await AuthService.resendOtp(req.body);
         return sendResponse(res, result);
     };
-
 }
 
 module.exports = new AuthController();

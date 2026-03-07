@@ -58,6 +58,7 @@ const config = {
         otp_length: Number(process.env.AUTH_OTP_LENGTH) || 6,
         otp_ttl_ms: Number(process.env.AUTH_OTP_TTL_MS) || 5 * 60 * 1000,
         otp_max_attempts: Number(process.env.AUTH_OTP_MAX_ATTEMPTS) || 5,
+        bcrypt_cost: Number(process.env.BCRYPT_COST) || 10
   },
 };
 

@@ -11,16 +11,20 @@ const {
   changePasswordSchema
 } = require('./user.val');
 
-router.post('/', validate(createUserSchema), UserController.createUser);
+const { roleRequired, selfOrAdmin } = require('../../middlewares/auth.middleware');
 
-router.get('/', UserController.getUsers);
+router.post('/', roleRequired('admin'), validate(createUserSchema), UserController.createUser);
 
-router.get('/:id', validate(idParamSchema, 'params'), UserController.getUser);
+router.get('/', roleRequired('admin'), UserController.getUsers);
 
-router.patch('/:id', validate(idParamSchema, 'params'), validate(updateUserSchema), UserController.updateUser);
+router.delete('/:id', roleRequired('admin'), validate(idParamSchema, 'params'), UserController.deleteUser);
 
-router.patch('/:id/password', validate(idParamSchema, 'params'), validate(changePasswordSchema), UserController.changePassword);
+router.get('/me', UserController.getMe);
 
-router.delete('/:id', validate(idParamSchema, 'params'), UserController.deleteUser);
+router.get('/:id', validate(idParamSchema, 'params'), selfOrAdmin, UserController.getUser);
+
+router.patch('/:id', validate(idParamSchema, 'params'), selfOrAdmin, validate(updateUserSchema), UserController.updateUser);
+
+router.patch('/:id/password', validate(idParamSchema, 'params'), selfOrAdmin, validate(changePasswordSchema), UserController.changePassword);
 
 module.exports = router;
