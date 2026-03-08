@@ -1,6 +1,5 @@
 const UserService = require('./user.service');
 const { sendResponse } = require('../../helpers/response.helper');
-const UserModels = require('./user.models');
 
 class UserController {
     createUser = async (req, res) => {

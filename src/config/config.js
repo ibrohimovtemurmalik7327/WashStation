@@ -51,7 +51,8 @@ const config = {
 
   tables: {
     TB_USERS: 'tb_users',
-    TB_TICKETS: 'tb_tickets'
+    TB_TICKETS: 'tb_tickets',
+    TB_BRANCHES: 'tb_branches'
   },
 
   auth: {
