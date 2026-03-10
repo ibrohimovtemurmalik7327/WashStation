@@ -74,12 +74,15 @@ class BranchService {
 
     updateBranch = async (id, data) => {
         try {
-            const existingPhone = await BranchModels.getByPhone(data?.phone);
-            if(existingPhone && existingPhone?.id !== id) {
-                return {
-                    success: false,
-                    error: 'PHONE_ALREADY_USED',
-                    data: {}
+            const { phone } = data;
+            if (phone) {
+                const existingPhone = await BranchModels.getByPhone(data?.phone);
+                if(existingPhone && existingPhone?.id !== id) {
+                    return {
+                        success: false,
+                        error: 'PHONE_ALREADY_USED',
+                        data: {}
+                    };
                 };
             };
 
