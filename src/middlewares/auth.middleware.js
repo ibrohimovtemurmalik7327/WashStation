@@ -8,8 +8,7 @@ const authRequired = (req, res, next) => {
         if (!authHeader) {
             return res.status(401).json({
                 success: false,
-                code: 'UNAUTHORIZED',
-                message: 'Authorization header missing',
+                error: 'UNAUTHORIZED',
                 data: {}
             });
         }
@@ -19,8 +18,7 @@ const authRequired = (req, res, next) => {
         if (type !== 'Bearer' || !token) {
             return res.status(401).json({
                 success: false,
-                code: 'UNAUTHORIZED',
-                message: 'Invalid authorization format',
+                error: 'UNAUTHORIZED',
                 data: {}
             });
         }
@@ -33,8 +31,7 @@ const authRequired = (req, res, next) => {
     } catch (error) {
         return res.status(401).json({
             success: false,
-            code: 'UNAUTHORIZED',
-            message: 'Invalid or expired token',
+            error: 'UNAUTHORIZED',
             data: {}
         });
     }
@@ -42,13 +39,20 @@ const authRequired = (req, res, next) => {
 
 const roleRequired = (...allowedRoles) => {
     return (req, res, next) => {
-        const role = req.user?.role;
+        if (!req.user) {
+            return res.status(401).json({
+                success: false,
+                error: 'UNAUTHORIZED',
+                data: {}
+            });
+        }
+
+        const role = req.user.role;
 
         if (!role) {
             return res.status(403).json({
                 success: false,
-                code: 'FORBIDDEN',
-                message: 'Role not found in token',
+                error: 'FORBIDDEN',
                 data: {}
             });
         }
@@ -56,8 +60,7 @@ const roleRequired = (...allowedRoles) => {
         if (!allowedRoles.includes(role)) {
             return res.status(403).json({
                 success: false,
-                code: 'FORBIDDEN',
-                message: 'Access denied',
+                error: 'FORBIDDEN',
                 data: {}
             });
         }
@@ -67,9 +70,17 @@ const roleRequired = (...allowedRoles) => {
 };
 
 const selfOrAdmin = (req, res, next) => {
-    const authUserId = Number(req.user?.sub);
+    if (!req.user) {
+        return res.status(401).json({
+            success: false,
+            error: 'UNAUTHORIZED',
+            data: {}
+        });
+    }
+
+    const authUserId = Number(req.user.sub);
     const targetUserId = Number(req.params.id);
-    const role = req.user?.role;
+    const role = req.user.role;
 
     if (role === 'admin' || authUserId === targetUserId) {
         return next();
@@ -77,8 +88,7 @@ const selfOrAdmin = (req, res, next) => {
 
     return res.status(403).json({
         success: false,
-        code: 'FORBIDDEN',
-        message: 'Access denied',
+        error: 'FORBIDDEN',
         data: {}
     });
 };

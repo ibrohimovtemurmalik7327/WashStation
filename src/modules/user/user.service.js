@@ -1,53 +1,30 @@
 const bcrypt = require('bcrypt');
 const config = require('../../config/config');
-const BCRYPT_COST = Number(config.bcrypt.cost || 10);
+
 const UserModels = require('./user.models');
 
+const BCRYPT_COST = Number(config.bcrypt.cost || 10);
+
 class UserService {
+
     createUser = async (data) => {
         try {
-            const doesExist = await UserModels.getByPhone(data.phone);
-            if(doesExist) {
+            const existing = await UserModels.getByPhone(data.phone);
+
+            if (existing) {
                 return {
                     success: false,
-                    code: 'CONFLICT',
-                    message: 'This phone number already used'
+                    error: 'PHONE_ALREADY_USED',
+                    data: {}
                 };
-            };
+            }
 
-            const user = {
+            const password_hash = await bcrypt.hash(data.password, BCRYPT_COST);
+
+            const user = await UserModels.createUser({
                 phone: data.phone,
-            };
-
-            user.password_hash = await bcrypt.hash(data.password, BCRYPT_COST);
-
-            const result = await UserModels.createUser(user);
-
-            return {
-                success: true,
-                data: result
-            };
-        } catch (error) {
-            console.error(error);
-
-            return {
-                success: false,
-                code: 'INTERNAL_ERROR',
-                message: 'Internal server error'
-            };
-        }
-    };
-
-    getUser = async (id) => {
-        try {
-            const user = await UserModels.getUserById(id);
-            if(!user) {
-                return {
-                    success: false,
-                    code: 'NOT_FOUND',
-                    message: 'User not found'
-                };
-            };
+                password_hash
+            });
 
             return {
                 success: true,
@@ -58,8 +35,35 @@ class UserService {
 
             return {
                 success: false,
-                code: 'INTERNAL_ERROR',
-                message: 'Internal server error'
+                error: 'INTERNAL',
+                data: {}
+            };
+        }
+    };
+
+    getUser = async (id) => {
+        try {
+            const user = await UserModels.getUserById(id);
+
+            if (!user) {
+                return {
+                    success: false,
+                    error: 'USER_NOT_FOUND',
+                    data: {}
+                };
+            }
+
+            return {
+                success: true,
+                data: user
+            };
+        } catch (error) {
+            console.error(error);
+
+            return {
+                success: false,
+                error: 'INTERNAL',
+                data: {}
             };
         }
     };
@@ -67,9 +71,9 @@ class UserService {
     getUsers = async () => {
         try {
             const users = await UserModels.getUsers();
-            
+
             return {
-                success: true, 
+                success: true,
                 data: users
             };
         } catch (error) {
@@ -77,44 +81,52 @@ class UserService {
 
             return {
                 success: false,
-                code: 'INTERNAL_ERROR',
-                message: 'Internal server error'
+                error: 'INTERNAL',
+                data: {}
             };
         }
     };
 
     updateUser = async (id, data) => {
         try {
-            const doesExist = await UserModels.getUserById(id);
-            if(!doesExist) {
+            const user = await UserModels.getUserById(id);
+
+            if (!user) {
                 return {
                     success: false,
-                    code: 'NOT_FOUND',
-                    message: 'User not found'
+                    error: 'USER_NOT_FOUND',
+                    data: {}
                 };
-            };
+            }
 
-            const phone = await UserModels.getByPhone(data.phone);
-            if(phone && phone?.id !== id) {
-                return {
-                    success: false,
-                    code: 'CONFLICT',
-                    message: 'This phone number already used'
-                };
-            };
+            // faqat phone kelgan bo‘lsa tekshir
+            if (data.phone) {
+                const existing = await UserModels.getByPhone(data.phone);
 
-            const updatedUser = await UserModels.updateById(id, {phone: data.phone});
+                if (existing && existing.id !== id) {
+                    return {
+                        success: false,
+                        error: 'PHONE_ALREADY_USED',
+                        data: {}
+                    };
+                }
+            }
+
+            const updated = await UserModels.updateById(id, {
+                phone: data.phone
+            });
+
             return {
-                success: true, 
-                data: updatedUser
+                success: true,
+                data: updated
             };
         } catch (error) {
             console.error(error);
 
             return {
                 success: false,
-                code: 'INTERNAL_ERROR',
-                message: 'Internal server error'
+                error: 'INTERNAL',
+                data: {}
             };
         }
     };
@@ -122,13 +134,14 @@ class UserService {
     deleteUser = async (id) => {
         try {
             const user = await UserModels.getUserById(id);
-            if(!user) {
+
+            if (!user) {
                 return {
                     success: false,
-                    code: 'NOT_FOUND',
-                    message: 'User not found'
+                    error: 'USER_NOT_FOUND',
+                    data: {}
                 };
-            };
+            }
 
             await UserModels.deleteById(id);
 
@@ -141,41 +154,42 @@ class UserService {
 
             return {
                 success: false,
-                code: 'INTERNAL_ERROR',
-                message: 'Internal server error'
+                error: 'INTERNAL',
+                data: {}
             };
         }
     };
 
     changePassword = async (id, data) => {
         try {
-            const {old_password, new_password} = data;
-            const old_password_hash = await UserModels.getPasswordHashById(id);
+            const { old_password, new_password } = data;
 
-            if(!old_password_hash) {
+            const old_hash = await UserModels.getPasswordHashById(id);
+
+            if (!old_hash) {
                 return {
                     success: false,
-                    code: 'NOT_FOUND',
-                    message: 'User not found'
+                    error: 'USER_NOT_FOUND',
+                    data: {}
                 };
-            };
+            }
 
-            const isMatch = await bcrypt.compare(old_password, old_password_hash);
+            const isMatch = await bcrypt.compare(old_password, old_hash);
 
-            if(!isMatch) {
+            if (!isMatch) {
                 return {
                     success: false,
-                    code: 'INCORRECT_OLD_PASSWORD',
-                    message: 'Old password incorrect'
+                    error: 'INCORRECT_OLD_PASSWORD',
+                    data: {}
                 };
-            };
+            }
 
-            const hashed_new_password = await bcrypt.hash(new_password, BCRYPT_COST);
+            const new_hash = await bcrypt.hash(new_password, BCRYPT_COST);
 
-            const result = await UserModels.changePassword(id, hashed_new_password);
+            const result = await UserModels.changePassword(id, new_hash);
 
             return {
-                success: true, 
+                success: true,
                 data: result
             };
         } catch (error) {
@@ -183,8 +197,8 @@ class UserService {
 
             return {
                 success: false,
-                code: 'INTERNAL_ERROR',
-                message: 'Internal server error'
+                error: 'INTERNAL',
+                data: {}
             };
         }
     };

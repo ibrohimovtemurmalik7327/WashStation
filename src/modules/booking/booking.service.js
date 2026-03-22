@@ -139,15 +139,24 @@ class BookingService {
         };
     };
 
-    cancelBooking = async (id) => {
+    cancelBooking = async (id, current_user) => {
+        if (!current_user) {
+            return {
+                success: false,
+                error: 'UNAUTHORIZED',
+                data: {}
+            };
+        }
+
         const booking = await BookingModels.getBookingById(id);
+
         if (!booking) {
             return {
                 success: false,
                 error: 'BOOKING_NOT_FOUND',
                 data: {}
             };
-        };
+        }
 
         if (!['pending', 'confirmed'].includes(booking.status)) {
             return {
@@ -155,7 +164,15 @@ class BookingService {
                 error: 'BOOKING_CANNOT_BE_CANCELLED',
                 data: {}
             };
-        };
+        }
+
+        if (current_user.role !== 'admin' && booking.user_id !== current_user.id) {
+            return {
+                success: false,
+                error: 'FORBIDDEN',
+                data: {}
+            };
+        }
 
         const cancelled = await BookingModels.updateBookingStatus(id, 'cancelled');
 

@@ -47,7 +47,7 @@ router.get(
 
 router.patch(
     '/:id/cancel',
-    roleRequired('admin'),
+    roleRequired('user'),
     validate(idParamSchema, 'params'),
     BookingController.cancelBooking
 );
