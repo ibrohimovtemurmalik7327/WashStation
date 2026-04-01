@@ -1,28 +1,12 @@
 const express = require('express');
-
 const app = express();
+
+app.use(express.json());
 
 const userRoutes = require('./modules/user/user.routes');
 const branchRoutes = require('./modules/branch/branch.routes');
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
 app.use('/api/users', userRoutes);
-app.use('./api/branches', branchRoutes)
-
-app.get('/', (req, res) => {
-    return res.status(200).json({
-        success: true,
-        message: 'WashStation API is running'
-    });
-});
-
-app.use((req, res) => {
-    return res.status(404).json({
-        success: false,
-        error: 'ROUTE_NOT_FOUND'
-    });
-});
+app.use('/api/branches', branchRoutes);
 
 module.exports = app;

@@ -1,6 +1,7 @@
 const validate = (schema, property = 'body') => {
     return (req, res, next) => {
-        const { error, value } = schema.validate(req[property], {
+
+        const { error, value } = schema.validate(req[property] || {}, {
             abortEarly: true,
             stripUnknown: true
         });
@@ -9,16 +10,16 @@ const validate = (schema, property = 'body') => {
             return res.status(400).json({
                 success: false,
                 error: 'VALIDATION_ERROR',
-                message: error.details?.[0]?.message || 'Validation error',
-                data: {}
+                data: {
+                    message: error.details?.[0]?.message || 'Validation error'
+                }
             });
         }
 
         req[property] = value;
-        return next();
+
+        next();
     };
 };
 
-module.exports = {
-    validate
-};
+module.exports = { validate };

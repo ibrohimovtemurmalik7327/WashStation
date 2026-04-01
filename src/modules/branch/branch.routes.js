@@ -28,7 +28,7 @@ router.patch(
 router.delete(
     '/:id',
     validate(idParamSchema, 'params'),
-    BranchController.deleteBranch
+    BranchController.deactivateBranch
 );
 
 module.exports = router;
