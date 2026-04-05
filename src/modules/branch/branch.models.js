@@ -28,8 +28,8 @@ class BranchModels {
             .orderBy('id', 'desc');
     };
 
-    getBranchById = async (id) => {
-        return db(TB)
+    getBranchById = async (id, trx = db) => {
+        return trx(TB)
             .select(columns)
             .where({ id })
             .first();

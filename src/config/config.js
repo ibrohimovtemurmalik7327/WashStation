@@ -46,11 +46,17 @@ const config = {
     maxAttempts: Number(process.env.AUTH_OTP_MAX_ATTEMPTS || 5)
   },
 
+  booking: {
+    WASH_MINUTES: Number(process.env.BOOKING_WASH_MINUTES || 30),
+    BUFFER_MINUTES: Number(process.env.BOOKING_BUFFER_MINUTES || 10)
+  },
+
   tables: {
     TB_USERS: 'tb_users',
     TB_BRANCHES: 'tb_branches',
     TB_MACHINES: 'tb_machines',
     TB_BOOKINGS: 'tb_bookings',
+    TB_BOOKING_MACHINES: 'tb_booking_machines',
     TB_PAYMENTS: 'tb_payments',
     TB_TICKETS: 'tb_tickets'
   }
